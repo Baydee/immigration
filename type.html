@@ -1,0 +1,159 @@
+<style>
+    .carousel-wrapper {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .carousel-section {
+        background: linear-gradient(180deg, #e6e6fa, #b0c4de);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .carousel-container {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 50%; /* Adjust this value to control the aspect ratio */
+        overflow: visible;
+    }
+
+    .carousel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slide {
+        position: absolute;
+        width: 30%;
+        height: 80%;
+        transition: all 0.5s ease-in-out;
+        opacity: 0;
+        filter: blur(4px);
+    }
+
+    .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .slide[data-position="-2"] { transform: translateX(-120%) scale(0.7); opacity: 0.4; z-index: 1; }
+    .slide[data-position="-1"] { transform: translateX(-60%) scale(0.85); opacity: 0.7; z-index: 2; }
+    .slide[data-position="0"] { transform: translateX(0) scale(1); opacity: 1; z-index: 3; filter: blur(0); }
+    .slide[data-position="1"] { transform: translateX(60%) scale(0.85); opacity: 0.7; z-index: 2; }
+    .slide[data-position="2"] { transform: translateX(120%) scale(0.7); opacity: 0.4; z-index: 1; }
+
+    .navigation-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+    }
+
+    .nav-side {
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .nav-left { left: 0; }
+    .nav-right { right: 0; }
+</style>
+
+<div class="carousel-wrapper">
+    <div class="carousel-section">
+        <div class="carousel-container">
+            <div class="carousel">
+                <div class="slide">
+                    <img src="/api/placeholder/400/600" alt="Cyclists racing">
+                </div>
+                <div class="slide">
+                    <img src="/api/placeholder/400/600" alt="Indoor basketball game">
+                </div>
+                <div class="slide">
+                    <img src="/api/placeholder/400/600" alt="Soccer players competing">
+                </div>
+                <div class="slide">
+                    <img src="/api/placeholder/400/600" alt="Rugby match">
+                </div>
+            </div>
+            <div class="navigation-overlay">
+                <div class="nav-side nav-left"></div>
+                <div class="nav-side nav-right"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const slides = Array.from(document.querySelectorAll('.slide'));
+        const navLeft = document.querySelector('.nav-left');
+        const navRight = document.querySelector('.nav-right');
+        let currentIndex = 0;
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                let position = (index - currentIndex + slides.length) % slides.length;
+                if (position > 2) position -= slides.length;
+                if (position < -2) position += slides.length;
+                slide.setAttribute('data-position', position);
+            });
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % slides.length;
+            updateSlides();
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            updateSlides();
+        }
+
+        // Event listeners
+        navLeft.addEventListener('click', prevSlide);
+        navRight.addEventListener('click', nextSlide);
+
+        // Touch events
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchEndX < touchStartX) nextSlide();
+            if (touchEndX > touchStartX) prevSlide();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+        });
+
+        // Initialize slides
+        updateSlides();
+    });
+</script>
